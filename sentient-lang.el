@@ -1,18 +1,21 @@
-;; allow people to define a hook for the mode
-;; necessary?
+;; Emacs font-lock mode for Sentient language
+;; Roberto DeFeo (rdefeo@gmail.com) 2020
+;; https://github.com/rdefeo/emacs-sentient
+
+;; Provide a hook to allow custom code when mode is invoked
 (defvar sentient-lang-mode-hook nil)
 
-;; do we need key binding?
+;; Basic key-binding... 
 (defvar sentient-lang-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\C-j" 'newline-and-indent)
     map)
   "Keymap for Sentient Lang major mode")
 
-;; bind the mode to .snt files
+;; Bind the mode to .snt files
 (add-to-list 'auto-mode-alist '("\\.snt" . sentient-lang-mode))
 
-;; keywords
+;; Define basic keywords, constants, and types
 (defconst sentient-lang-mode-font-lock-keywords-1
   (list
    '("\\<\\(expose\\|invariant\\|function\\|return\\)\\>" . font-lock-function-name-face)
@@ -23,6 +26,8 @@
    )
   "Minimal highlighting expressions for Sentient Lang mode")
 
+;; TODO
+;; Define built-in methods on integers and arrays
 (defconst sentient-lang-mode-font-lock-keywords-2
   (append sentient-lang-mode-font-lock-keywords-1
 	  (list
@@ -32,7 +37,7 @@
 
 (defvar sentient-lang-mode-font-lock-keywords sentient-lang-mode-font-lock-keywords-1 "Default highlighing expressions for Senitent Lang mode")
 
-;; syntax
+;; Define comment style
 (defvar sentient-lang-mode-syntax-table
   (let ((st (make-syntax-table)))
     (modify-syntax-entry ?# "<" st)
@@ -49,7 +54,7 @@
 
   (setq major-mode 'sentient-lang-mode)
   (setq mode-name "Sentient")
-;  (run-hooks 'sentient-lang-mode-hook)
+  (run-hooks 'sentient-lang-mode-hook)
   )
 
 (provide 'sentient-lang-mode)
