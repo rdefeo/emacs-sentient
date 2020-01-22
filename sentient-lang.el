@@ -5,37 +5,50 @@
 ;; Provide a hook to allow custom code when mode is invoked
 (defvar sentient-lang-mode-hook nil)
 
-;; Basic key-binding... 
-(defvar sentient-lang-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "\C-j" 'newline-and-indent)
-    map)
-  "Keymap for Sentient Lang major mode")
-
 ;; Bind the mode to .snt files
 (add-to-list 'auto-mode-alist '("\\.snt" . sentient-lang-mode))
 
 ;; Define basic keywords, constants, and types
 (defconst sentient-lang-mode-font-lock-keywords-1
   (list
-   '("\\<\\(expose\\|invariant\\|function\\|return\\)\\>" . font-lock-function-name-face)
+   '("\\(expose\\|invariant\\|function[\\?!]?\\|return\\|buildArray\\)" . font-lock-function-name-face)
+   '("\\<function\\>" "\\(.*\\)(" nil nil (1 font-lock-variable-name-face))
    '(";" . font-lock-builtin-face)
-   '("true\\|false" . font-lock-constant-face)
-   '("\\(\\<int[0-9]*\\|\\<array[0-9]*\\)" . font-lock-type-face)
+   '("\\<\\(true\\|false\\)\\>" . font-lock-constant-face)
+   '("\\<int[0-9]*\\|\\<array[0-9]*" . font-lock-type-face)
    '("[^a-z]\\([0-9]+\\)" . (1 font-lock-constant-face))
    )
   "Minimal highlighting expressions for Sentient Lang mode")
 
-;; TODO
-;; Define built-in methods on integers and arrays
+;; Define operators and built-in methods on integers and arrays
 (defconst sentient-lang-mode-font-lock-keywords-2
   (append sentient-lang-mode-font-lock-keywords-1
 	  (list
-	   '()
+	   ;; operators
+	   '("\\_<\\(==?\\|\\+\\|\\-\\|/\\|\\?\\|:\\|\\*\\|||?\\|&&?\\|\\!\\)\\_>" . font-lock-builtin-face)
+	   
+	   '("\\.?\\(if\\)(" . (1 font-lock-keyword-face))
+
+	   ;; method used by all types
+	   '("\\.self" . font-lock-keyword-face)
+
+	   ;; integer type methods
+	   '("\\.\\(abs\\|between\\?\\|cube\\|divmod\\)" . (1 font-lock-keyword-face))
+	   '("\\.\\(downto\\|even\\?\\|negative\\?\\|next\\)" . (1 font-lock-keyword-face))
+	   '("\\.\\(odd\\?\\|positive\\?\\|pred\\|prev\\)" . (1 font-lock-keyword-face))
+	   '("\\.\\(square\\|succ\\?\\|times\\|upto\\|zero\\?\\)" . (1 font-lock-keyword-face))
+
+	   ;; array type methods
+	   '("\\.\\(fetch\\|all\\?\\|any\\?\\|bounds\\?\\)" . (1 font-lock-keyword-face))
+	   '("\\.\\(collect\\|count\\|countBy\\|eachCombination\\|eachCons\\)" . (1 font-lock-keyword-face))
+	   '("\\.\\(eachSlice\\|each\\|first\\|get\\)" . (1 font-lock-keyword-face))
+	   '("\\.\\(include\\?\\|last\\|length\\|map\\|none\\?\\)" . (1 font-lock-keyword-face))
+	   '("\\.\\(one\\?\\|push\\|reduce\\|reject\\|reverse\\|select\\)" . (1 font-lock-keyword-face))
+	   '("\\.\\(size\\|sum\\|transpose\\|uniqBy\\?\\|uniq\\?\\)" . (1 font-lock-keyword-face))
 	   ))
   "More highlighted expressions for Sentient Lang mode")
 
-(defvar sentient-lang-mode-font-lock-keywords sentient-lang-mode-font-lock-keywords-1 "Default highlighing expressions for Senitent Lang mode")
+(defvar sentient-lang-mode-font-lock-keywords sentient-lang-mode-font-lock-keywords-2 "Default highlighing expressions for Senitent Lang mode")
 
 ;; Define comment style
 (defvar sentient-lang-mode-syntax-table
@@ -45,16 +58,17 @@
     st)
   "Syntax table for sentient-lang-mode")
 
-
-(define-derived-mode sentient-lang-mode fundamental-mode "Sentient"
+;; Defind the mode
+(define-derived-mode sentient-lang-mode prog-mode "Sentient"
   "Major mode for editing Sentient Language files"
-  :syntax-table sentient-lang-mode-syntax-table
-  (setq-local comment-start "#")
-  (setq font-lock-defaults '(sentient-lang-mode-font-lock-keywords))
+  (kill-all-local-variables)
+
+  (set-syntax-table sentient-lang-mode-syntax-table)
+
+  (setq-local font-lock-defaults '(sentient-lang-mode-font-lock-keywords))
 
   (setq major-mode 'sentient-lang-mode)
   (setq mode-name "Sentient")
-  (run-hooks 'sentient-lang-mode-hook)
-  )
+  (run-hooks 'sentient-lang-mode-hook))
 
 (provide 'sentient-lang-mode)
